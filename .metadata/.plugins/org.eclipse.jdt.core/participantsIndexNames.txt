@@ -1,0 +1,9 @@
+INDEX VERSION 1.131
+C:\MyWork\jsp-practice\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\3087651050.index
+\JspBasic\src\main\java
+C:\MyWork\jsp-practice\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2668630306.index
+\JspBasic\src\main\java
+C:\MyWork\jsp-practice\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2498239419.index
+\JspBasic\src\main\java
+C:\MyWork\jsp-practice\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\3811761148.index
+\JspBasic\src\main\java
