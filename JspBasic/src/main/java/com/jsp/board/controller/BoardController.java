@@ -2,6 +2,7 @@ package com.jsp.board.controller;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
@@ -124,8 +125,26 @@ public class BoardController extends HttpServlet {
 			
 			break;
 			
+		case "content":
+			System.out.println("글 제목을 눌렀음! 내용도 보여조야함!");
+			int bIdidx = request.getQueryString().indexOf("=");
+			String idx = request.getQueryString().substring(bIdidx+1);
+			//String cContent = 
+			//일단 둘다 문자열ㄹ ㅗ저장했으니까 문자열로 받아주고
 			
+			//받아준 값을 새로 리스트를 만들엇 ㅓ보내야ㅏ하나
+			//int nums = BoardRepository.getInstace().getList().indexOf("content");
+			//BoardVO contentlist = BoardRepository.getInstace().getList(nums);
 			
+			System.out.println(idx);
+			
+			List<BoardVO> clist = BoardRepository.getInstace().getList();
+			String realcontent = clist.get(Integer.parseInt(idx)-1).getContent();
+			request.setAttribute("showcontent", realcontent);
+			
+			RequestDispatcher dpcontent = request.getRequestDispatcher("board/board_content.jsp");
+			dpcontent.forward(request, response);
+			System.out.println("content보냄!");
 			
 		
 		}

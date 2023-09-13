@@ -14,5 +14,7 @@
 	<a href="/JspBasic/update.user">회원 정보 수정</a>
 	<a href="/JspBasic/delete.user">회원 탈퇴</a>
 
+	<a href="">회원가입</a>
+	
 </body>
 </html>

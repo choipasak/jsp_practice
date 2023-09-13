@@ -31,7 +31,9 @@
 				<td>${num.count}</td>
 				<td>${b.writer}</td>
 				<td>
-				<a href="/JspBasic/content.board?bId=${num.count}" >${b.title}</a>
+				<a href="/JspBasic/content.board?bId=${num.count}"  >
+				${b.title}
+				</a>
 				<!-- 이렇게 글의 번호를 같이 뭍혀서 보내야 한다. -->
 				</td>
 				<td>

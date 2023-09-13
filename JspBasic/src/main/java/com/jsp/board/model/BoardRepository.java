@@ -25,14 +25,12 @@ public class BoardRepository {
 		//객체를 보내면(=글 등록하고 싶으면) 보드리스트에 저장해줄게~(직접 접근제한해버리기)
 	}
 	
+	
 	//전체 게시물(boardList)을 담고 있는 리스트를 리턴
 	//글 등록 후의 자동재요청에 따라 전체 글 목록을 전달해 주기 위한 메서드이다.
 	public List<BoardVO> getList(){
 		return boardList;
 	}
-	
-	
-	
 }
 
 
