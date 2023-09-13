@@ -35,11 +35,20 @@ public class CookieServlet extends HttpServlet {
 			Cookie loginCoo = new Cookie("login_cookie", id);//매개값은 setAttribute()처럼지정! 그대신 둘 다 문자열만.
 			
 			//2. 쿠키 클래스의 setter 메서드로 쿠키의 속성을 설정.(필수: 쿠키의 수명)
-			loginCoo.setMaxAge(15);//쿠키의 유효 시간 설정 단위: 초. 1시간 -> 60 * 60 으로 작성 권장
+			loginCoo.setMaxAge(5);//쿠키의 유효 시간 설정 단위: 초. 1시간 -> 60 * 60 으로 작성 권장
 			
 			//3. http 응답 시 response 객체에 생성된 쿠키를 탑재해서 클라이언트에게 전송.
 			response.addCookie(loginCoo);
 			//응답에 쿠키 태워서 보내기(전달)
+			
+			//사용자가 아이디 기억하기 체크박스를 체크했는지의 여부 확인.
+			if(request.getParameter("rememberId") != null) {//체크를 했다면 null이 아님.
+				//rememberId의 value값인 true가 오지 않았다면
+				Cookie idMemory = new Cookie("rememberId", id);
+				idMemory.setMaxAge(30);//수명 30초로 잡아주고
+				response.addCookie(idMemory);//응답과 함께 로그인유지+아이디기억 해서 쿠키 2개를 태워보낸다.
+			}
+			
 
 			response.sendRedirect("/JspBasic/cookie/cookie_welcome.jsp");
 			//sendRedirect가 제공된 경로로 바로 이동하는게 아님
