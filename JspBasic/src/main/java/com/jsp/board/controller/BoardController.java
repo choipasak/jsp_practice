@@ -1,9 +1,6 @@
 package com.jsp.board.controller;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -12,14 +9,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.jsp.board.model.BoardRepository;
-import com.jsp.board.model.BoardVO;
+import com.jsp.board.service.ContentService;
+import com.jsp.board.service.DeleteService;
+import com.jsp.board.service.GetListService;
+import com.jsp.board.service.IBoardService;
+import com.jsp.board.service.ModifyService;
+import com.jsp.board.service.RegistService;
+import com.jsp.board.service.SearchService;
+import com.jsp.board.service.UpdateService;
 
 
 @WebServlet("*.board")
 public class BoardController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+     
+	private IBoardService sv;
+	private RequestDispatcher dp;
     
     public BoardController() {
         super();
@@ -28,7 +33,8 @@ public class BoardController extends HttpServlet {
 	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		if(request.getMethod().equals("POST")) {// method="post"일 때, 그리고 매개값은 대문자로 작성해 줘야 한다!
+		if(request.getMethod().equals("POST")) {// method="post"일 때
+			//그리고 매개값은 대문자로 작성해 줘야 한다! getMethod()가 대문자로 문자열을 리턴하기 때문!
 			request.setCharacterEncoding("UTF-8");
 		}//한글 깨지지 말라고 인코딩 해준다.
 		
@@ -52,22 +58,11 @@ public class BoardController extends HttpServlet {
 			
 			
 		case "regist":
+			
 			System.out.println("글 등록 요청이 들어옴!");
-			String writer = request.getParameter("writer");
-			String title = request.getParameter("title");
-			String content = request.getParameter("content");
-			//위의 입력값이 하나의 글. 이기 때문에 하나의 객체로 포장해서 DB역할하는 객체에 넘기자!
+			sv = new RegistService(); // -> 등록해주는 객체를 생성해서 일처리를 맡겼음
+			sv.execute(request, response);
 			
-			BoardVO vo = new BoardVO();
-			vo.setWriter(writer);
-			vo.setTitle(title);
-			vo.setContent(content);
-			vo.setRegDate(LocalDateTime.now());//나중에 DB쓰면 이런거 안해용
-			//이렇게 값을 넣는 이유: 생성자의 매개변수에 regDate는 DB에서 줘야하기 때문에
-			//지금 당장은 null값을 입력할 수 밖엔 없다.
-			//null값을 주기 싫기 때문에 참조변수를 통해 값 전달!
-			
-			BoardRepository.getInstace().regist(vo);//글 등록 완료!
 			
 			//단순하게 생각하면 response.sendRedirect("/JspBasic/board_list.jsp")이렇게 작성해줄 수 있음.
 			//근데 막상 jsp파일로 가보면 아무것도 없음!
@@ -90,15 +85,9 @@ public class BoardController extends HttpServlet {
 			
 		case "list":
 			System.out.println("글 목록 요청이 들어옴!");
-			List<BoardVO> list = BoardRepository.getInstace().getList();
-			//위의 배열을 이제 jsp로 보내서 jsp에서 반복문을 통해 값을 하나씩 꺼내서 보여주게 하면 된다!
-			//근데 어떻게 보냄?
-			//요청이 들어오면 응답내보내고 끝내고싶어 -> request객체 이용!
-			//DB로부터 전달받은 글 목록을 세션에 넣기는 좀 아깝습니다. 세션이 아깝다! 그리고 유지가 너무 길어!
-			//세션 -> 데이터를 계속 유지하기 위한 수단. -> 글 목록을 계속 유지해? 왜?
-			//글 목록은 한 번 응답하면 더 이상 필요 없다. -> 계속 갱신되는 데이터이기 때문.
-			//응답이 나가면 자동으로 소멸하는 request객체를 사용하자.
-			request.setAttribute("boardList", list);//세션처럼 값을 담아준다! 메서드 동일
+			sv = new GetListService(); //리스트를 보여주는 객체를 생성해서 일처리를 맡김.
+			sv.execute(request, response);
+			
 			
 			//response.sendRedirect("");를 사용하면 안됌
 			//또 왜: request는 response나가면 죽음
@@ -117,22 +106,36 @@ public class BoardController extends HttpServlet {
 			//request 객체를 다음 화면까지 운반하기 위한 forward 기능을 제공하는 객체가 있어요
 			//=> RequestDispatcher한테 경로 알려줄 때 contextPath를 빼서 알려줘야한다. => 상대경로를 줘라!
 			//절대경로를 주고 싶다면 앞의 contextPath를 빼고 주면된다.
-			RequestDispatcher dp = request.getRequestDispatcher("board/board_list.jsp");
+			dp = request.getRequestDispatcher("board/board_list.jsp");
 			dp.forward(request, response);
-			System.out.println("보냄!");
 			//이렇게 request와 response를 가지고 위의 경로로 간다!
 			//그럼 경로의 jsp파일에서 반복문으로 list의 값을 꺼내서 보여주는 로직을 짜서 보여주면 된다!
 			
 			break;
 			
 		case "content":
+			
+			System.out.println("글 상세보기 요청이 들어옴!");
+			sv = new ContentService();//일은 ContentService()가 하는거임.
+			sv.execute(request, response);
+			
+			dp = request.getRequestDispatcher("board/board_content.jsp");
+			//ㄴ> switch문이여서 자꾸 변수가 중복됌. -> 코드의 양이 많아짐 -> 컨트롤러가 하는 양이 너무 많아짐. -> 서비스계층 생성(인터페이스)
+			//서비스계층 생성 -> 다형성을 적용한 인터페이스를 이용해서 컨트롤러 로직을 다시 작성해보자!
+			dp.forward(request, response);
+			break;
+			
+			
+			/////////////////////////////////////// 내가 한 버전 /////////////////////////////////////////
+			/*
 			System.out.println("글 제목을 눌렀음! 내용도 보여조야함!");
+			//String idx = request.getParameter("bId");
 			int bIdidx = request.getQueryString().indexOf("=");
 			String idx = request.getQueryString().substring(bIdidx+1);
 			//String cContent = 
 			//일단 둘다 문자열ㄹ ㅗ저장했으니까 문자열로 받아주고
 			
-			//받아준 값을 새로 리스트를 만들엇 ㅓ보내야ㅏ하나
+			//받아준 값을 새로 리스트를 만들엇 ㅓ보내야ㅏ하나 이러면 넘 ㅜ길어지는데
 			//int nums = BoardRepository.getInstace().getList().indexOf("content");
 			//BoardVO contentlist = BoardRepository.getInstace().getList(nums);
 			
@@ -140,13 +143,61 @@ public class BoardController extends HttpServlet {
 			
 			List<BoardVO> clist = BoardRepository.getInstace().getList();
 			String realcontent = clist.get(Integer.parseInt(idx)-1).getContent();
+			//get의 인덱스 값은 페이지의 번호로 0부터 시작이 아니기 때문에 -1해준당
 			request.setAttribute("showcontent", realcontent);
 			
+			//인덱스번호 살려서 보내야하니까 디스패쳐사용
 			RequestDispatcher dpcontent = request.getRequestDispatcher("board/board_content.jsp");
 			dpcontent.forward(request, response);
 			System.out.println("content보냄!");
+			//////////////////////////////////////////////////////////////////////////////////////////
+			*/
 			
+		case "modify":
+			System.out.println("글 수정 페이지로 이동 요청!");
+			sv = new ModifyService();
+			sv.execute(request, response);
 		
+			dp = request.getRequestDispatcher("board/board_modify.jsp");
+			dp.forward(request, response);
+			break;
+			
+		case "update":
+			//새롭게 입력받은 수정값으로 BoardVO 객체를 생성해서 수정을 진행하세요.
+			//(기존 리스트에 존재하는 객체를 새로운 객체로 교체)
+			//수정이 완료되면 수정된 글의 상세보기 페이지로 응답이 나가야 합니다.
+			
+			System.out.println("글 수정 요청이 들어옴!");
+			sv = new UpdateService();
+			sv.execute(request, response);// UpdateService()에서 작성해준 내용을 저장해준다.
+			
+			response.sendRedirect("/JspBasic/content.board?bId=" + request.getParameter("boardNo"));
+			//sendRedirect()사용하는게 맞음. 그래야 content로 넘어가서 통해서 상세글로 넘어가기 때문에
+			//그리고 글 번호를 같이 보내줘야햠 -> content에서 글번호를 받아서 상세글을 보여주기 때문에
+			//그럼 어떤 번호를 보내야하냐 -> 수정요정을 보낸 그 글의 번호!
+			//컨트롤러에서 url을 수정해서 보내준거임
+			
+			break;
+			
+		case "delete":
+			System.out.println("글 삭제 요청이 들어옴!");
+			sv = new DeleteService();
+			sv.execute(request, response);
+			response.sendRedirect("/JspBasic/list.board");
+			//jsp파일로 보내면 아무것도 없음
+			//목록을 끌고 가서 보내야함 -> list로 보내야 한다는 말. 왜냐면 list의 케이스가
+			//목록을 끌고와서 응답하는 로직이기 때문에!
+			break;
+			
+		case "search":
+			System.out.println("작성자로 게시글 검색 요청이 들어옴!");
+			sv = new SearchService();
+			sv.execute(request, response);
+			
+			//포워딩
+			dp = request.getRequestDispatcher("board/board_list.jsp");
+			dp.forward(request, response);
+			break;
 		}
 		
 	
