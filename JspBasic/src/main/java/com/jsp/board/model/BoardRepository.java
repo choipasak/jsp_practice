@@ -1,7 +1,6 @@
 package com.jsp.board.model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 //우리가 DB를 아직 안배워서;;
